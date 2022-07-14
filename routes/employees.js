@@ -91,7 +91,8 @@ router.get('/:departmentId/employees/:id', (req, res, next) => {
   Employee.find({
     departmentId: req.params.departmentId,
     _id: req.params.id,
-  }).then((employee) => {
+  }).then((data) => {
+    const employee = data[0];
     res.status(200).json({
       id: employee._id,
       departmentId: employee.departmentId,
