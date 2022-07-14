@@ -4,9 +4,32 @@ const Department = require('../models/department.model');
 const router = express.Router();
 
 router.get('', (req, res, next) => {
-  Department.find().then((departments) => {
-    res.status(200).json(departments);
-  });
+  const params = req.query;
+  const page = +params.page;
+  const size = +params.size;
+  let departments;
+
+  Department.find()
+    .skip(page * size)
+    .limit(size)
+    .then((data) => {
+      departments = data;
+
+      return Department.count();
+    })
+    .then((count) => {
+      res.status(200).json({
+        content: departments.map((department) => {
+          return {
+            id: department._id,
+            description: department.description,
+            headOfDepartment: department.headOfDepartment,
+            name: department.name,
+          };
+        }),
+        totalCount: count,
+      });
+    });
 });
 
 router.post('', (req, res, next) => {
@@ -27,7 +50,12 @@ router.delete('/:id', (req, res, next) => {
 
 router.get('/:id', (req, res, next) => {
   Department.findById(req.params.id).then((department) => {
-    res.status(200).json(department);
+    res.status(200).json({
+      id: department._id,
+      name: department.name,
+      description: department.description,
+      headOfDepartment: department.headOfDepartment,
+    });
   });
 });
 

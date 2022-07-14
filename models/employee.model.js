@@ -27,6 +27,7 @@ const employeeSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  image: String,
 });
 
 module.exports = mongoose.model('Employee', employeeSchema);
