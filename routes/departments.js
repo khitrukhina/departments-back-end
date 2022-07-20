@@ -1,6 +1,6 @@
 const express = require('express');
 const Department = require('../models/department.model');
-
+const checkAuth = require('../middleware/check-auth');
 const router = express.Router();
 
 router.get('', (req, res, next) => {
@@ -32,7 +32,7 @@ router.get('', (req, res, next) => {
     });
 });
 
-router.post('', (req, res, next) => {
+router.post('', checkAuth, (req, res, next) => {
   const department = new Department({
     name: req.body.name,
     description: req.body.description,
@@ -42,13 +42,13 @@ router.post('', (req, res, next) => {
   res.status(201).send();
 });
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', checkAuth, (req, res, next) => {
   Department.deleteOne({_id: req.params.id}).then(() => {
     res.status(204).send();
   });
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', checkAuth, (req, res, next) => {
   Department.findById(req.params.id).then((department) => {
     res.status(200).json({
       id: department._id,
@@ -59,7 +59,7 @@ router.get('/:id', (req, res, next) => {
   });
 });
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id', checkAuth, (req, res, next) => {
   const department = new Department({
     _id: req.params.id,
     name: req.body.name,

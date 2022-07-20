@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 
+const checkAuth = require('../middleware/check-auth');
 const Employee = require('../models/employee.model');
 
 const router = express.Router();
@@ -26,7 +27,7 @@ const storage = multer.diskStorage({
   },
 });
 
-router.get('/:id/employees', (req, res, next) => {
+router.get('/:id/employees', checkAuth, (req, res, next) => {
   const params = req.query;
   const page = +params.page;
   const size = +params.size;
@@ -60,7 +61,7 @@ router.get('/:id/employees', (req, res, next) => {
     });
 });
 
-router.post('/:departmentId/employees', multer({storage: storage}).single('image'), (req, res, next) => {
+router.post('/:departmentId/employees', checkAuth, multer({storage: storage}).single('image'), (req, res, next) => {
   const body = req.body;
   const url = `${req.protocol}://${req.get('host')}`;
   const employee = new Employee({
@@ -78,7 +79,7 @@ router.post('/:departmentId/employees', multer({storage: storage}).single('image
   res.status(201).send();
 });
 
-router.delete('/:departmentId/employees/:id', (req, res, next) => {
+router.delete('/:departmentId/employees/:id', checkAuth, (req, res, next) => {
   Employee.deleteOne({
     departmentId: req.params.departmentId,
     _id: req.params.id,
@@ -87,7 +88,7 @@ router.delete('/:departmentId/employees/:id', (req, res, next) => {
   });
 });
 
-router.get('/:departmentId/employees/:id', (req, res, next) => {
+router.get('/:departmentId/employees/:id', checkAuth, (req, res, next) => {
   Employee.find({
     departmentId: req.params.departmentId,
     _id: req.params.id,
@@ -107,7 +108,7 @@ router.get('/:departmentId/employees/:id', (req, res, next) => {
   });
 });
 
-router.put('/:departmentId/employees/:id', multer({storage: storage}).single('image'), (req, res, next) => {
+router.put('/:departmentId/employees/:id', checkAuth, multer({storage: storage}).single('image'), (req, res, next) => {
   const body = req.body;
   let image = body.image;
 
