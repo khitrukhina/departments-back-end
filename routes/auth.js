@@ -18,9 +18,7 @@ router.post('/signup', (req, res, next) => {
       })
       .catch((error) => {
         const message = error.errors?.email.properties.message;
-        res.status(500).json({
-          error: message,
-        });
+        res.status(500).json(message);
       });
   });
 });
@@ -51,7 +49,7 @@ router.post('/login', (req, res, next) => {
       res.status(201).json(token);
     })
     .catch((error) => {
-      res.status(401).json({error});
+      res.status(401).json(error);
     });
 });
 
