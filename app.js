@@ -5,6 +5,7 @@ const path = require('path');
 
 const departmentsRoutes = require('./routes/departments');
 const employeesRoutes = require('./routes/employees');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 mongoose
@@ -24,5 +25,6 @@ app.use((req, res, next) => {
 
 app.use('/api/departments', departmentsRoutes);
 app.use('/api/departments', employeesRoutes);
+app.use('/api/auth', authRoutes);
 
 module.exports = app;
