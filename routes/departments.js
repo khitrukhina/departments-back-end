@@ -25,6 +25,7 @@ router.get('', (req, res, next) => {
             description: department.description,
             headOfDepartment: department.headOfDepartment,
             name: department.name,
+            creator: department.creator,
           };
         }),
         totalCount: count,
@@ -37,15 +38,26 @@ router.post('', checkAuth, (req, res, next) => {
     name: req.body.name,
     description: req.body.description,
     headOfDepartment: req.body.headOfDepartment,
+    creator: req.userData.userId,
   });
   department.save();
   res.status(201).send();
 });
 
 router.delete('/:id', checkAuth, (req, res, next) => {
-  Department.deleteOne({_id: req.params.id}).then(() => {
-    res.status(204).send();
-  });
+  Department.deleteOne({
+    _id: req.params.id,
+    creator: req.userData.userId,
+  })
+    .then((result) => {
+      if (!result.deletedCount) {
+        throw new Error('You have no rights to delete this department.');
+      }
+      res.status(204).send();
+    })
+    .catch((error) => {
+      res.status(400).json(error);
+    });
 });
 
 router.get('/:id', checkAuth, (req, res, next) => {
@@ -55,6 +67,7 @@ router.get('/:id', checkAuth, (req, res, next) => {
       name: department.name,
       description: department.description,
       headOfDepartment: department.headOfDepartment,
+      creator: department.creator,
     });
   });
 });
@@ -65,11 +78,25 @@ router.put('/:id', checkAuth, (req, res, next) => {
     name: req.body.name,
     description: req.body.description,
     headOfDepartment: req.body.headOfDepartment,
+    creator: req.userData.userId,
   });
 
-  Department.updateOne({_id: req.params.id}, department).then(() => {
-    res.status(202).send();
-  });
+  Department.updateOne(
+    {
+      _id: req.params.id,
+      creator: req.userData.userId,
+    },
+    department
+  )
+    .then((result) => {
+      if (!result.modifiedCount) {
+        throw new Error('You have no rights to update this department.');
+      }
+      res.status(202).send();
+    })
+    .catch((error) => {
+      res.status(400).json(error);
+    });
 });
 
 module.exports = router;

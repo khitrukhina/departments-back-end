@@ -54,6 +54,7 @@ router.get('/:id/employees', checkAuth, (req, res, next) => {
             dateOfBirth: employee.dateOfBirth,
             salary: employee.salary,
             image: employee.image,
+            creator: employee.creator,
           };
         }),
         totalCount: count,
@@ -73,6 +74,7 @@ router.post('/:departmentId/employees', checkAuth, multer({storage: storage}).si
     dateOfBirth: body.dateOfBirth,
     salary: body.salary,
     image: `${url}/images/${req.file.filename}`,
+    creator: req.userData.userId,
   });
 
   employee.save();
@@ -83,9 +85,17 @@ router.delete('/:departmentId/employees/:id', checkAuth, (req, res, next) => {
   Employee.deleteOne({
     departmentId: req.params.departmentId,
     _id: req.params.id,
-  }).then(() => {
-    res.status(204).send();
-  });
+    creator: req.userData.userId,
+  })
+    .then((result) => {
+      if (!result.deletedCount) {
+        throw new Error('You have no rights to delete that employee.');
+      }
+      res.status(204).send();
+    })
+    .catch((error) => {
+      res.status(400).json(error);
+    });
 });
 
 router.get('/:departmentId/employees/:id', checkAuth, (req, res, next) => {
@@ -104,6 +114,7 @@ router.get('/:departmentId/employees/:id', checkAuth, (req, res, next) => {
       dateOfBirth: employee.dateOfBirth,
       salary: employee.salary,
       image: employee.image,
+      creator: employee.creator,
     });
   });
 });
@@ -126,18 +137,27 @@ router.put('/:departmentId/employees/:id', checkAuth, multer({storage: storage})
     password: body.password,
     dateOfBirth: body.dateOfBirth,
     salary: body.salary,
-    image: image,
+    image,
+    creator: req.userData.userId,
   });
 
   Employee.updateOne(
     {
       _id: req.params.id,
       departmentId: req.params.departmentId,
+      creator: req.userData.userId,
     },
     employee
-  ).then(() => {
-    res.status(202).send();
-  });
+  )
+    .then((result) => {
+      if (!result.modifiedCount) {
+        throw new Error('You have no rights to update that employee.');
+      }
+      res.status(202).send();
+    })
+    .catch((error) => {
+      res.status(400).json(error);
+    });
 });
 
 module.exports = router;

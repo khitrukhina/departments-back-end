@@ -28,6 +28,11 @@ const employeeSchema = mongoose.Schema({
     required: true,
   },
   image: String,
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('Employee', employeeSchema);

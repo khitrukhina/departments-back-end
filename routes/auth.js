@@ -28,14 +28,14 @@ router.post('/login', (req, res, next) => {
   User.findOne({email: req.body.credentials.email})
     .then((user) => {
       if (!user) {
-        throw new Error('Authentication has failed!');
+        throw new Error();
       }
       foundUser = user;
       return crypt.compare(req.body.credentials.password, user.password);
     })
     .then((result) => {
       if (!result) {
-        throw new Error('Authentication has failed!');
+        throw new Error();
       }
       const token = jwt.sign(
         {
@@ -43,13 +43,13 @@ router.post('/login', (req, res, next) => {
           userId: foundUser._id,
         },
         'secret_this_should_be_longer',
-        {expiresIn: '3h'}
+        {expiresIn: '1h'}
       );
 
       res.status(201).json(token);
     })
-    .catch((error) => {
-      res.status(401).json(error);
+    .catch(() => {
+      res.status(401).json('Authentication has failed!');
     });
 });
 
