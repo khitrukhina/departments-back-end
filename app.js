@@ -9,7 +9,7 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 mongoose
-  .connect('mongodb+srv://ykhitrukhina:odaiti83@cluster0.sirvxsj.mongodb.net/node-angular?retryWrites=true&w=majority')
+  .connect(`mongodb+srv://ykhitrukhina:${process.env.MONGO_ATLAS_PW}@cluster0.sirvxsj.mongodb.net/node-angular?retryWrites=true&w=majority`)
   .catch(() => console.log('Connection failed'));
 
 app.use(bodyParser.json());

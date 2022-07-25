@@ -43,7 +43,7 @@ exports.loginUser = (req, res) => {
           email: foundUser.email,
           userId: foundUser._id,
         },
-        'secret_this_should_be_longer',
+        process.env.JWT_KEY,
         {expiresIn: '1h'}
       );
 
