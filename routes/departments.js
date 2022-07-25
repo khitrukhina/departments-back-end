@@ -30,6 +30,9 @@ router.get('', (req, res, next) => {
         }),
         totalCount: count,
       });
+    })
+    .catch(() => {
+      res.status(500).json('Error occurred!');
     });
 });
 
@@ -40,8 +43,14 @@ router.post('', checkAuth, (req, res, next) => {
     headOfDepartment: req.body.headOfDepartment,
     creator: req.userData.userId,
   });
-  department.save();
-  res.status(201).send();
+  department
+    .save()
+    .then(() => {
+      res.status(201).send();
+    })
+    .catch(() => {
+      res.status(500).json('Error occurred!');
+    });
 });
 
 router.delete('/:id', checkAuth, (req, res, next) => {
@@ -51,25 +60,32 @@ router.delete('/:id', checkAuth, (req, res, next) => {
   })
     .then((result) => {
       if (!result.deletedCount) {
-        throw new Error('You have no rights to delete this department.');
+        throw new Error();
       }
-      res.status(204).send();
+      return result;
     })
-    .catch((error) => {
-      res.status(400).json(error);
+    .catch(() => {
+      res.status(400).json('You have no rights to delete this department.');
+    })
+    .then(() => {
+      res.status(204).send();
     });
 });
 
 router.get('/:id', checkAuth, (req, res, next) => {
-  Department.findById(req.params.id).then((department) => {
-    res.status(200).json({
-      id: department._id,
-      name: department.name,
-      description: department.description,
-      headOfDepartment: department.headOfDepartment,
-      creator: department.creator,
+  Department.findById(req.params.id)
+    .then((department) => {
+      res.status(200).json({
+        id: department._id,
+        name: department.name,
+        description: department.description,
+        headOfDepartment: department.headOfDepartment,
+        creator: department.creator,
+      });
+    })
+    .catch(() => {
+      res.status(500).json('Error occurred!');
     });
-  });
 });
 
 router.put('/:id', checkAuth, (req, res, next) => {
@@ -90,12 +106,12 @@ router.put('/:id', checkAuth, (req, res, next) => {
   )
     .then((result) => {
       if (!result.modifiedCount) {
-        throw new Error('You have no rights to update this department.');
+        throw new Error();
       }
       res.status(202).send();
     })
-    .catch((error) => {
-      res.status(400).json(error);
+    .catch(() => {
+      res.status(400).json('You have no rights to update this department.');
     });
 });
 

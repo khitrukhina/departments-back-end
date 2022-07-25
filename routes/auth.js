@@ -33,6 +33,9 @@ router.post('/login', (req, res, next) => {
       foundUser = user;
       return crypt.compare(req.body.credentials.password, user.password);
     })
+    .catch(() => {
+      res.status(500).json('Error occurred!');
+    })
     .then((result) => {
       if (!result) {
         throw new Error();

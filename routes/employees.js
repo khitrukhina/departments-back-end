@@ -59,6 +59,9 @@ router.get('/:id/employees', checkAuth, (req, res, next) => {
         }),
         totalCount: count,
       });
+    })
+    .catch(() => {
+      res.status(500).json('Error occurred!');
     });
 });
 
@@ -73,12 +76,18 @@ router.post('/:departmentId/employees', checkAuth, multer({storage: storage}).si
     password: body.password,
     dateOfBirth: body.dateOfBirth,
     salary: body.salary,
-    image: `${url}/images/${req.file.filename}`,
+    image: req.file ? `${url}/images/${req.file.filename}` : '',
     creator: req.userData.userId,
   });
 
-  employee.save();
-  res.status(201).send();
+  employee
+    .save()
+    .then(() => {
+      res.status(201).send();
+    })
+    .catch(() => {
+      res.status(500).json('Error occurred!');
+    });
 });
 
 router.delete('/:departmentId/employees/:id', checkAuth, (req, res, next) => {
@@ -89,12 +98,12 @@ router.delete('/:departmentId/employees/:id', checkAuth, (req, res, next) => {
   })
     .then((result) => {
       if (!result.deletedCount) {
-        throw new Error('You have no rights to delete that employee.');
+        throw new Error();
       }
       res.status(204).send();
     })
-    .catch((error) => {
-      res.status(400).json(error);
+    .catch(() => {
+      res.status(400).json('You have no rights to delete that employee.');
     });
 });
 
@@ -102,21 +111,25 @@ router.get('/:departmentId/employees/:id', checkAuth, (req, res, next) => {
   Employee.find({
     departmentId: req.params.departmentId,
     _id: req.params.id,
-  }).then((data) => {
-    const employee = data[0];
-    res.status(200).json({
-      id: employee._id,
-      departmentId: employee.departmentId,
-      firstName: employee.firstName,
-      lastName: employee.lastName,
-      email: employee.email,
-      password: employee.password,
-      dateOfBirth: employee.dateOfBirth,
-      salary: employee.salary,
-      image: employee.image,
-      creator: employee.creator,
+  })
+    .then((data) => {
+      const employee = data[0];
+      res.status(200).json({
+        id: employee._id,
+        departmentId: employee.departmentId,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        email: employee.email,
+        password: employee.password,
+        dateOfBirth: employee.dateOfBirth,
+        salary: employee.salary,
+        image: employee.image,
+        creator: employee.creator,
+      });
+    })
+    .catch(() => {
+      res.status(500).json('Error occurred!');
     });
-  });
 });
 
 router.put('/:departmentId/employees/:id', checkAuth, multer({storage: storage}).single('image'), (req, res, next) => {
@@ -151,12 +164,12 @@ router.put('/:departmentId/employees/:id', checkAuth, multer({storage: storage})
   )
     .then((result) => {
       if (!result.modifiedCount) {
-        throw new Error('You have no rights to update that employee.');
+        throw new Error();
       }
       res.status(202).send();
     })
-    .catch((error) => {
-      res.status(400).json(error);
+    .catch(() => {
+      res.status(400).json('You have no rights to update that employee.');
     });
 });
 
